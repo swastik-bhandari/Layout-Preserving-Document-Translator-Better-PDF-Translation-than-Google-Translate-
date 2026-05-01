@@ -1,67 +1,175 @@
 # Layout-Preserving Document Translator
-### Better PDF Translation than Google Translate
+### Translate PDFs without breaking formatting
 
-> A structure-preserving multilingual document translator for PDF, DOCX, and CSV/TSV.
-> Unlike Google Translate, which breaks formatting in Nepali PDFs, this system preserves layout, tables, bold/italic styling, colors, and hyperlinks, delivering high-fidelity document translation instead of plain text output.
-> Supports PDF, DOCX, CSV/TSV with full structure, table, and formatting preservation, especially strong on PDFs where most tools fail.
+> A multilingual document translator for PDF, DOCX, and CSV/TSV that preserves layout, tables, and styling — something Google Translate fails to do for Nepali documents.
 
-**Powered by** [TMT API](https://tmt.ilprl.ku.edu.np) · LowResource Labs · Google TMT Hackathon 2026
+> **Baseline:** Google Translate is used as the reference system for PDF and DOCX translation quality. CSV and TSV formats are not supported by Google Translate.
 
 ---
 
-## The Problem Google Translate Doesn't Solve
+## ❌ The Problem
 
-When you upload a PDF to Google Translate for English↔Nepali translation, the translated output **loses most formatting**. Bold headings become plain text. Italicised passages look identical to body text. Suffers from syllabic splitting.
+Google Translate works well for plain text — but fails on **real documents**.
 
-This isn't a minor cosmetic issue. In medical reports, legal documents, academic papers, and government forms — formatting *is* meaning. A bold warning, an italic definition, an underlined clause — stripping these changes how the document reads.
+When translating PDFs (English ↔ Nepali):
 
-**This project fixes that.**
+- Bold headings become plain text  
+- Italic text loses distinction  
+- Layout and structure break  
+- Devanagari words split incorrectly across lines  
+
+This isn’t just cosmetic.
+
+> In **medical reports, legal documents, and government forms**, formatting carries meaning.  
+> Losing it can change how a document is understood.
+
+Additionally:
+
+- ❌ **No support for CSV/TSV files** in Google Translate  
+- ❌ Limited reliability for structured documents  
+
+---
+
+## ✅ Our Solution
+
+This project preserves both **content and structure**:
+
+- Maintains original document layout  
+- Keeps formatting (bold, color, links) intact  
+- Fixes Devanagari rendering issues  
+- Supports **CSV/TSV** (not supported by Google Translate)  
+
+---
+
+## 🎯 Key Insight
+
+- DOCX → comparable to baseline  
+- PDF → **major improvement over Google Translate**  
+- CSV/TSV → **new capability beyond baseline**
+
+---
+
+**Powered by** [TMT API](https://tmt.ilprl.ku.edu.np)  
+LowResource Labs · Google TMT Hackathon 2026
+
+---
+
+## Side-by-Side Comparison
+
+The screenshots below compare translations of the same English source document into Nepali using Google Translate and this project.  
+
+All corresponding test files — including PDF, DOCX, CSV, and TSV formats — are available in the `TestFiles/` directory.
+
+### Original English Document
+![Original English TestFile](screenshots/TestFile_eng.png)
+
+### Google Translate Output (Nepali)
+![Google Translate Nepali Output](screenshots/TestFile_googleTranslate_ne.png)
+
+> Bold headings reduced to plain text. Italic passages indistinguishable from body. Syllabic splitting splits Devanagari words incorrectly across line breaks.
+
+### This Project's Output (Nepali)
+![LowResourceLabs Nepali Output](screenshots/TestFile_LowResourceLabs_ne.png)
+
+> Bold and color preserved exactly as in the original. The syllabic splitting issue has been resolved. Devanagari rendered correctly with no syllabic splitting. Layout matches the source document.
 
 ---
 
 ## What We Preserve That Google Translate Does Not
 
-| Formatting Feature | Google Translate (EN↔NE PDF) | This Project |
+| Formatting Feature | Google Translate (EN↔NE PDF/DOCX) | This Project |
 |---|---|---|
 | **Bold text** | ✗ Lost | ✓ Preserved |
-| **Italic text** | ✗ Lost | ✓ Preserved |
-|**Syllabic Splitting issue** | ✗ Lost | ✓ Preserved |
+| **Syllabic splitting fix** | ✗ Broken | ✓ Correct |
 | **Underline** | ✓ Preserved | ✓ Preserved |
 | **Text color** | ✓ Preserved | ✓ Preserved |
-| **Hyperlink** | ✓ Preserved | ✓ Preserved |
+| **Hyperlinks** | ✓ Preserved | ✓ Preserved |
 | **Images** | ✓ Preserved | ✓ Preserved |
+| **Italic text** | ✗ Lost | ✗ Lost |
 | **Devanagari shaping (no boxes)** | ✓ | ✓ |
 | **DOCX bold/italic/color/font** | ✓ | ✓ |
 | **DOCX table structure** | ✓ | ✓ |
+| **CSV/TSV translation** | ✗ Not supported | ✓ Fully supported |
+
 ---
-Our application accepts CSV/TSV and translates accurately, preserving structure. Google Translate doesn't accept CSV/TSV.
+
+## Test Files
+
+The `TestFiles/` directory contains real translation comparisons across all supported formats:
+
+```
+TestFiles/
+├── pdfs_translation/
+│   ├── TestFile_eng.pdf                        ← Original English PDF
+│   ├── TestFile_googleTranslate_output_ne.pdf  ← Google Translate output (for comparison)
+│   ├── TestFile_LowResourceLabs_output_ne.pdf  ← This project's Nepali output
+│   └── TestFile_eng_LowResourceLabs_tmg.pdf    ← This project's Tamang output
+│
+├── docx_translation/
+│   ├── TestFile_eng.docx                            ← Original English DOCX
+│   ├── TestFile_googleTranslate_output_ne.docx      ← Google Translate output (for comparison)
+│   ├── TestFile_LowResourceLabs_output_ne.docx      ← This project's Nepali output
+│   └── TestFile_eng_LabResourceLabs_tmg.docx        ← This project's Tamang output
+│
+├── csv_translation/
+│   ├── business-operations-survey-2022.csv     ← Original CSV
+│   ├── business-operations-survey-2022_ne.csv  ← Nepali translation
+│   └── business-operations-survey-2022_tmg.csv ← Tamang translation
+│
+└── tsv_translation/
+    ├── business-operations-survey-2022.tsv     ← Original TSV
+    ├── business-operations-survey-2022_ne.tsv  ← Nepali translation
+    └── business-operations-survey-2022_tmg.tsv ← Tamang translation
+```
+
+> **Note:** Google Translate does not support CSV or TSV input, so no Google Translate comparison files exist for those formats.
+
+---
 
 ## Quick Start
 
+### 1. System Dependencies
+
+WeasyPrint requires Pango for correct Devanagari shaping on Linux:
+
 ```bash
-# System dependencies — WeasyPrint needs Pango for Devanagari shaping
 sudo apt update
 sudo apt install -y \
   libpango-1.0-0 libpangoft2-1.0-0 libpangocairo-1.0-0 \
   libcairo2 libgdk-pixbuf2.0-0 \
   fonts-freefont-ttf fonts-noto fonts-noto-core \
   shared-mime-info
-
-# Python packages
-pip install flask pdfplumber pymupdf weasyprint python-docx \
-            requests uharfbuzz fonttools pillow
 ```
 
-### Run
+### 2. Python Packages
 
 ```bash
-git clone git@github.com:swastik-bhandari/Layout-Preserving-Document-Translator-Better-PDF-Translation-than-Google-Translate-.git
+pip install flask requests python-dotenv pdfplumber pymupdf \
+            weasyprint python-docx lxml openpyxl
+```
+
+> **Note:** `lxml` is required by `docx_processor.py` for raw XML iteration over table cells and hyperlinks. It is not listed in `requirements.txt` but must be installed.
+
+### 3. Environment Variables
+
+Copy `.env.example` to `.env` and fill in your TMT API credentials:
+
+```bash
+TMT_API_URL=https://tmt.ilprl.ku.edu.np/lang-translate
+TMT_API_KEY=your_api_key_here
+```
+
+Both variables are required. The server will refuse to start if either is missing.
+
+### 4. Run
+
+```bash
+git clone https://github.com/swastik-bhandari/Layout-Preserving-Document-Translator-Better-PDF-Translation-than-Google-Translate-.git
+cd Layout-Preserving-Document-Translator-Better-PDF-Translation-than-Google-Translate-
 python app.py --port 5050
 ```
 
-Open **http://localhost:5050** in your Windows browser (WSL auto-forwards ports).
-
-> **Windows note:** Run inside WSL Ubuntu. WeasyPrint requires GTK3/Pango which installs natively on Linux but requires complex setup on bare Windows.
+Open **http://localhost:5050** in your browser.
 
 ---
 
@@ -76,8 +184,9 @@ Open **http://localhost:5050** in your Windows browser (WSL auto-forwards ports)
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                      app.py  (Flask)                            │
-│  • Job queue (threading)    • GET /status/<id>  (live log)      │
+│  • Background threading     • GET /status/<id>  (live log)      │
 │  • 50 MB upload limit       • GET /download/<id>                │
+│  • GET /  (serves frontend) • GET /health                       │
 └──────┬──────────────┬──────────────┬───────────────────────────┘
        │ .pdf         │ .docx        │ .csv / .tsv
        ▼              ▼              ▼
@@ -118,42 +227,20 @@ Original PDF
     ├─► pdfplumber.extract_words()
     │     Word-level bounding boxes (x0, y0, x1, y1)
     │     Used for: layout clustering, heading detection, table detection
-    │     Cannot do: underline, italic, color, link flags
+    │     Cannot do: italic, color, link flags
     │
     └─► PyMuPDF  get_text('dict')
           Per-span OpenType flags:
             bit 4 → bold
             bit 1 → italic
-            bit 2 → underline
             int   → color as 0xRRGGBB
           page.get_links()  → URI + rect per annotation
           get_drawings()    → fill rectangles (table cell backgrounds)
+                            → thin horizontal lines (real underlines)
           get_pixmap()      → full page PNG at 2× resolution
 ```
 
-**pdfplumber** gives us the layout structure (where things are, how big, how indented). **PyMuPDF** gives us the rich formatting metadata (how things look). They are merged by bounding-box overlap: for each text block found by pdfplumber, we look up all PyMuPDF spans that fall inside that block's rectangle and union their formatting flags.
 
-```python
-# From pdf_processor.py — _block_style()
-def _block_style(spans, x0, y0, x1, y1, tol=4) -> dict:
-    matching = []
-    for sp in spans:
-        if (sp['x0'] - tol < x1 and sp['x1'] + tol > x0 and
-                sp['y0'] - tol < y1 and sp['y1'] + tol > y0):
-            matching.append(sp)
-
-    underline = any(s['underline'] for s in matching)
-    italic    = any(s['italic']    for s in matching)
-    bold      = any(s['bold']      for s in matching)
-    # Prefer the first span with a distinctive (non-black) color
-    # e.g. hyperlink teal #467886 — black is valid, not a fallback
-    color = matching[0]['color']
-    for s in matching:
-        if s['color'] not in ('#000000', '#111111'):
-            color = s['color']
-            break
-    return {'underline': underline, 'italic': italic, 'bold': bold, 'color': color}
-```
 
 ### Phase 2 — Translation
 
@@ -161,7 +248,7 @@ Each extracted text block is sent to the TMT API individually. The translator us
 
 - **Sentence-aware splitting** on `.!?` and Devanagari danda `।` so long paragraphs are split into meaningful units before API calls
 - **Exponential backoff with ±20% jitter** on failures (avoids thundering-herd on retry)
-- **Connection pooling** via `requests.Session` + `HTTPAdapter` (4 persistent connections)
+- **Connection pooling** via `requests.Session` + `HTTPAdapter` (4 persistent connections, pool size 8)
 - **Graceful fallback** — if a block fails after 4 retries, the original text is kept so the document is never partially broken
 
 ### Phase 3 — Reconstruction (The Key Innovation)
@@ -177,7 +264,7 @@ For each page:
   3. Translated text <div>s are placed at original coordinates with:
        font-weight: bold/normal          ← from PyMuPDF span flag bit 4
        font-style:  italic/normal        ← from PyMuPDF span flag bit 1
-       text-decoration: underline/none   ← from PyMuPDF span flag bit 2
+       text-decoration: underline/none   ← from drawn path detection
        color: #rrggbb                    ← from PyMuPDF span color integer
   4. If a block has a link annotation → wrapped in <a href="...">
   5. Table cells → background color from actual page drawings (not hardcoded)
@@ -185,29 +272,10 @@ For each page:
        └─► Pango → HarfBuzz → OpenType shaping → correct Devanagari glyphs
 ```
 
-```python
-# From pdf_processor.py — per-block style application
-div_style = (
-    f'left:{x0:.2f}mm;top:{y0:.2f}mm;'
-    f'width:{bw:.2f}mm;min-height:{bh:.2f}mm;'
-    f'font-size:{sz_mm:.3f}mm;'
-    f'font-weight:{css_font_weight};'    # bold or normal
-    f'font-style:{css_font_style};'      # italic or normal
-    f'text-align:{align};'
-    f'color:{color};'                    # exact hex from original span
-    f'text-decoration:{css_decoration};' # underline or none
-)
-# Hyperlinks get an actual <a href> wrapper
-if link_uri:
-    overlays.append(f'<a href="{_esc(link_uri)}">{inner}</a>')
-```
-
-
----
 
 ## DOCX Pipeline
 
-DOCX files are XML archives. The translator walks the document tree at the XML level, which gives complete control over formatting:
+DOCX files are XML archives. The translator walks the document tree at the XML level, which gives complete control over formatting.
 
 ### The Three Bugs We Solved
 
@@ -217,13 +285,6 @@ DOCX files are XML archives. The translator walks the document tree at the XML l
 
 Fix: iterate raw `<w:tc>` XML elements directly per row:
 
-```python
-# From docx_processor.py — _iter_real_cells()
-def _iter_real_cells(table):
-    for tr in table._tbl.iterchildren(W('tr')):
-        for tc in tr.iterchildren(W('tc')):
-            yield tc   # always unique per physical row — no phantoms
-```
 
 **2. Hyperlink paragraphs have zero runs**
 
@@ -231,20 +292,10 @@ def _iter_real_cells(table):
 
 Fix: extract text from ALL `<w:t>` descendants using XML iteration:
 
-```python
-# From docx_processor.py — _para_text() and _set_para_text()
-def _para_text(para) -> str:
-    return ''.join(t.text or '' for t in para._p.iter(W('t')))
-    # Captures body runs AND hyperlink runs in one pass
-
-def _set_para_text(para, translated: str):
-    all_t = list(para._p.iter(W('t')))
-    all_t[0].text = translated   # write into first <w:t>
-    for t in all_t[1:]:
-        t.text = ''              # clear rest — formatting preserved via rPr XML
-```
 
 **3. Full paragraph context for translation**
+
+All `<w:t>` text nodes across runs are joined before sending to the API, so the translator receives coherent sentences rather than individual run fragments.
 
 ### What Gets Translated
 - Body paragraphs (all styles: Normal, Heading 1–9, Title, Subtitle, List)
@@ -265,20 +316,7 @@ def _set_para_text(para, translated: str):
 
 ### Encoding & Delimiter Auto-Detection
 
-```python
-# From csv_processor.py
-for enc in ('utf-8-sig', 'utf-8', 'latin-1', 'cp1252'):
-    try:
-        with open(input_path, 'r', encoding=enc, newline='') as f:
-            raw = f.read()
-        break
-    except UnicodeDecodeError:
-        continue
-```
-
 `utf-8-sig` is tried first because Excel exports always write a UTF-8 BOM. Delimiter is detected by `csv.Sniffer` with fallback to counting occurrences of `,`, `\t`, `|`, `;`.
-
-```
 
 ### Smart Skip Logic
 
@@ -288,27 +326,7 @@ Cells are skipped (not sent to API) if they are: pure numbers, dates (`DD/MM/YYY
 
 ## Translation API Client
 
-```python
-# From translator.py — retry with exponential backoff + jitter
-for attempt in range(retries):
-    try:
-        resp = _session.post(API_URL, json=payload, headers=headers, timeout=25)
-        data = resp.json()
-        if data.get('message_type') == 'SUCCESS':
-            return {'ok': True, 'output': data['output'].strip()}
-        if resp.status_code in (401, 403):
-            break   # auth error — don't retry
-        time.sleep(_jitter(base_delay * (2 ** attempt)))
-    except requests.exceptions.Timeout:
-        time.sleep(_jitter(base_delay * (2 ** attempt)))
-    except requests.exceptions.ConnectionError:
-        return {'ok': False, 'output': text, 'error': 'cannot reach TMT API'}
-
-def _jitter(base: float) -> float:
-    return base * (0.8 + random.random() * 0.4)   # ±20% randomisation
-```
-
-The shared `requests.Session` with `HTTPAdapter(pool_connections=4, pool_maxsize=8)` means TCP connections are reused across all translation calls — no handshake overhead per request, significantly faster for large documents.
+The API payload uses `src_lang` and `tgt_lang` fields. Responses are expected with `message_type: "SUCCESS"` and the translated text in `output`. Authentication is via `Authorization: Bearer <TMT_API_KEY>` header. The shared `requests.Session` with `HTTPAdapter(pool_connections=4, pool_maxsize=8)` reuses TCP connections across all translation calls — no per-request handshake overhead, significantly faster for large documents.
 
 ---
 
@@ -321,6 +339,7 @@ tmt-translator/
 │   ├── POST /translate         # Upload file, start background translation job
 │   ├── GET  /status/<id>       # Poll progress: done count, total, log tail
 │   ├── GET  /download/<id>     # Download completed translated file
+│   ├── GET  /                  # Serves frontend/index.html
 │   └── GET  /health            # Service liveness check
 │
 ├── frontend/
@@ -328,13 +347,15 @@ tmt-translator/
 │                               # Drag-drop · language swap · live log · ETA
 │
 ├── backend/
-│   ├── translator.py           # TMT API client (107 lines)
+│   ├── __init__.py
+│   │
+│   ├── translator.py           # TMT API client (115 lines)
 │   │   ├── translate_sentence  # Single segment with retry/backoff
 │   │   ├── translate_paragraph # Sentence-split then join
 │   │   └── split_sentences     # Regex on .!?। boundaries
 │   │
-│   ├── pdf_processor.py        # PDF pipeline (644 lines)
-│   │   ├── _spans_for_page     # PyMuPDF → per-span bold/italic/underline/color
+│   ├── pdf_processor.py        # PDF pipeline (824 lines)
+│   │   ├── _spans_for_page     # PyMuPDF → per-span bold/italic/color
 │   │   ├── _links_for_page     # PyMuPDF → hyperlink URI + rect
 │   │   ├── _table_fills_for_page # PyMuPDF drawings → cell background colors
 │   │   ├── _block_style        # Merge span flags onto pdfplumber blocks
@@ -343,38 +364,62 @@ tmt-translator/
 │   │   ├── _page_to_html       # Build HTML overlay per page
 │   │   └── reconstruct_pdf     # WeasyPrint render → output PDF
 │   │
-│   ├── docx_processor.py       # DOCX pipeline (218 lines)
+│   ├── docx_processor.py       # DOCX pipeline (217 lines)
 │   │   ├── _iter_real_cells    # Raw <w:tc> XML iteration (no phantom merges)
 │   │   ├── _para_text          # All <w:t> descendants (includes hyperlinks)
 │   │   ├── _set_para_text      # Write-back via XML <w:t> nodes
 │   │   └── translate_docx      # Body + tables + headers/footers + textboxes
 │   │
-│   └── csv_processor.py        # CSV/TSV pipeline (155 lines)
+│   └── csv_processor.py        # CSV/TSV pipeline (154 lines)
 │       ├── _detect             # Encoding + delimiter auto-detection
 │       ├── _skippable          # Filter numbers, dates, URLs, acronyms
 │       └── translate_csv       # Position-keyed queue + text cache
 │
-├── sample_docs/                # Test documents for all formats and scenarios
-├── tests/                      # Layout verification and report generation
-├── requirements.txt
-└── run.sh
+├── TestFiles/                  # Translation comparison files for all formats
+│   ├── pdfs_translation/       # Original + Google Translate + this project (PDF)
+│   ├── docx_translation/       # Original + Google Translate + this project (DOCX)
+│   ├── csv_translation/        # Original + translated CSV files
+│   └── tsv_translation/        # Original + translated TSV files
+│
+├── screenshots/                # Visual comparison screenshots (used in README)
+│   ├── TestFile_eng.png
+│   ├── TestFile_googleTranslate_ne.png
+│   └── TestFile_LowResourceLabs_ne.png
+│
+├── .env                        # API credentials (TMT_API_URL, TMT_API_KEY)
+└── requirements.txt
 ```
+
 
 ---
 
 ## Dependencies
 
-| Package | Version | Purpose |
+### Python packages
+
+| Package | Version (requirements.txt) | Purpose |
 |---|---|---|
-| `flask` | ≥3.0 | HTTP server, job routing |
-| `pymupdf` (fitz) | ≥1.23 | PDF page render, span flags, link annotations, drawings |
-| `pdfplumber` | ≥0.10 | Word-level bbox extraction, table detection |
-| `weasyprint` | ≥60 | HTML→PDF with Pango+HarfBuzz (Devanagari shaping) |
-| `python-docx` | ≥1.1 | DOCX read/write |
-| `requests` | ≥2.31 | TMT API calls with connection pooling |
-| `uharfbuzz` | any | HarfBuzz bindings (used by WeasyPrint) |
-| `pillow` | ≥10 | Image handling |
-| `fonttools` | any | Font introspection |
+| `flask` | 2.3.3 | HTTP server, job routing |
+| `pymupdf` (fitz) | 1.23.8 | PDF render, span flags, link annotations, drawings |
+| `pdfplumber` | 0.9.0 | Word-level bbox extraction, table detection |
+| `weasyprint` | latest | HTML→PDF with Pango+HarfBuzz (Devanagari shaping) |
+| `python-docx` | 0.8.11 | DOCX read/write |
+| `lxml` | latest | Raw XML iteration in docx_processor (**required, not in requirements.txt**) |
+| `requests` | 2.31.0 | TMT API calls with connection pooling |
+| `python-dotenv` | 1.0.0 | Load `.env` credentials |
+| `openpyxl` | 3.1.2 | Spreadsheet support |
+
+### System packages (Linux/WSL)
+
+WeasyPrint needs Pango, Cairo, and Noto fonts for correct Devanagari rendering:
+
+```bash
+sudo apt install -y \
+  libpango-1.0-0 libpangoft2-1.0-0 libpangocairo-1.0-0 \
+  libcairo2 libgdk-pixbuf2.0-0 \
+  fonts-freefont-ttf fonts-noto fonts-noto-core \
+  shared-mime-info
+```
 
 ---
 
@@ -392,6 +437,15 @@ All three can be used as source or target in the UI.
 
 ---
 
+## API Routes
+
+| Method | Route | Description |
+|---|---|---|
+| `GET` | `/` | Serves the frontend UI |
+| `POST` | `/translate` | Upload file + start background translation job |
+| `GET` | `/status/<job_id>` | Poll job progress (progress, total, log tail) |
+| `GET` | `/download/<job_id>` | Download completed translated file |
+| `GET` | `/health` | Liveness check, returns version and upload dir |
 
 ---
 
