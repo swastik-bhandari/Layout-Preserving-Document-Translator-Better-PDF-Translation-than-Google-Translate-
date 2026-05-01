@@ -11,7 +11,7 @@
 
 ## The Problem Google Translate Doesn't Solve
 
-When you upload a PDF to Google Translate for English↔Nepali translation, the translated output **loses all formatting**. Bold headings become plain text. Italicised passages look identical to body text. Underlines vanish. Hyperlink colors disappear. Table header backgrounds are dropped or replaced with wrong colors.
+When you upload a PDF to Google Translate for English↔Nepali translation, the translated output **loses most formatting**. Bold headings become plain text. Italicised passages look identical to body text. Suffers from syllabic splitting.
 
 This isn't a minor cosmetic issue. In medical reports, legal documents, academic papers, and government forms — formatting *is* meaning. A bold warning, an italic definition, an underlined clause — stripping these changes how the document reads.
 
