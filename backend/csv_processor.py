@@ -37,10 +37,6 @@ def _skippable(cell: str) -> bool:
     # URLs
     if _URL_RE.match(t):
         return True
-    # Only skip short all-caps if it's truly code-like (no vowels = acronym)
-    # e.g. "USD", "N/A", "ID" 
-    if len(t) <= 4 and t.upper() == t and re.match(r'^[A-Z0-9_/\-]+$', t):
-        return True
     return False
 
 
