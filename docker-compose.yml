@@ -1,0 +1,35 @@
+version: "3.9"
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  TMT Translator — Docker Compose
+#  Usage:  docker compose up --build
+#  App  :  http://localhost:5050
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  tmt-translator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tmt-translator
+    restart: unless-stopped
+    ports:
+      - "5050:5050"
+    env_file:
+      - .env
+    environment:
+      - FLASK_ENV=production
+    volumes:
+      # Persist uploads & outputs across restarts (optional)
+      - tmt_uploads:/tmp/tmt_uploads
+      - tmt_outputs:/tmp/tmt_outputs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5050/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  tmt_uploads:
+  tmt_outputs:

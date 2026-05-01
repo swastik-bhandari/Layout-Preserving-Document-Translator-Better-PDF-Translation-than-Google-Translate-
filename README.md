@@ -126,50 +126,62 @@ TestFiles/
 
 ---
 
-## Quick Start
+# 🚀 Quick Start (1-Minute Setup)
 
-### 1. System Dependencies
+Get the project running locally in under a minute.
 
-WeasyPrint requires Pango for correct Devanagari shaping on Linux:
+---
 
-```bash
-sudo apt update
-sudo apt install -y \
-  libpango-1.0-0 libpangoft2-1.0-0 libpangocairo-1.0-0 \
-  libcairo2 libgdk-pixbuf2.0-0 \
-  fonts-freefont-ttf fonts-noto fonts-noto-core \
-  shared-mime-info
-```
-
-### 2. Python Packages
-
-```bash
-pip install flask requests python-dotenv pdfplumber pymupdf \
-            weasyprint python-docx lxml openpyxl
-```
-
-> **Note:** `lxml` is required by `docx_processor.py` for raw XML iteration over table cells and hyperlinks. It is not listed in `requirements.txt` but must be installed.
-
-### 3. Environment Variables
-
-Copy `.env.example` to `.env` and fill in your TMT API credentials:
-
-```bash
-TMT_API_URL=https://tmt.ilprl.ku.edu.np/lang-translate
-TMT_API_KEY=your_api_key_here
-```
-
-Both variables are required. The server will refuse to start if either is missing.
-
-### 4. Run
+## Option 1 — Local Setup (Recommended)
 
 ```bash
 git clone https://github.com/swastik-bhandari/Layout-Preserving-Document-Translator-Better-PDF-Translation-than-Google-Translate-.git
 cd Layout-Preserving-Document-Translator-Better-PDF-Translation-than-Google-Translate-
-python app.py --port 5050
+
+# One-time setup (installs system deps + Python packages)
+bash setup.sh
+
+# Start the application
+bash run.sh
 ```
 
 Open **http://localhost:5050** in your browser.
+
+---
+
+## Option 2 — Docker (Best for Evaluation)
+
+```bash
+bash run.sh --docker
+```
+
+Runs the full system inside a container with all dependencies pre-configured.
+
+---
+
+## ✅ Run Tests (Optional)
+
+```bash
+bash test.sh
+```
+
+Runs automated smoke tests across supported file types and language pairs.
+
+---
+
+## 📦 Setup Scripts Overview
+
+| File               | Purpose                                                      |
+| ------------------ | ------------------------------------------------------------ |
+| `setup.sh`         | One-time setup (Python venv, system dependencies, packages)  |
+| `run.sh`           | Start the application locally or via Docker                  |
+| `test.sh`          | Automated validation across formats and languages            |
+| `Dockerfile`       | Containerized build with fonts and dependencies              |
+| `docker-compose.yml` | One-command container orchestration                        |
+
+---
+
+> **Note:** System dependencies and Python packages are automatically handled by `setup.sh`
 
 ---
 

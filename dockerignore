@@ -1,0 +1,23 @@
+# ── Git ───────────────────────────────
+.git
+.gitignore
+
+# ── Python ────────────────────────────
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# ── Dev / Test ────────────────────────
+TestFiles/
+screenshots/
+*.log
+
+# ── Sensitive ─────────────────────────
+.env
+
+# ── OS ────────────────────────────────
+.DS_Store
+Thumbs.db
