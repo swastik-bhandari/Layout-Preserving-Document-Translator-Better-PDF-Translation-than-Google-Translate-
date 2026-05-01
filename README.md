@@ -66,7 +66,7 @@ All corresponding test files — including PDF, DOCX, CSV, and TSV formats — a
 ### Google Translate Output (Nepali)
 ![Google Translate Nepali Output](screenshots/TestFile_googleTranslate_ne.png)
 
-> Bold headings reduced to plain text. Italic passages indistinguishable from body. Syllabic splitting splits Devanagari words incorrectly across line breaks.
+> Bold headings reduced to plain text. Syllabic splitting splits Devanagari words incorrectly across line breaks.
 
 ### This Project's Output (Nepali)
 ![LowResourceLabs Nepali Output](screenshots/TestFile_LowResourceLabs_ne.png)
