@@ -96,7 +96,21 @@ fi
 source venv/bin/activate
 
 # Verify API key is loaded
-export $(grep -v '^#' .env | grep -v '^$' | xargs)
+while IFS= read -r line; do
+    [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+    [[ "$line" != *"="* ]] && continue
+
+    key="${line%%=*}"
+    value="${line#*=}"
+
+    key="${key//[[:space:]]/}"
+    value="${value#"${value%%[![:space:]]*}"}"
+    value="${value%"${value##*[![:space:]]}"}"
+    value="${value#\"}"
+    value="${value%\"}"
+
+    export "$key=$value"
+done < .env
 if [[ -z "${TMT_API_KEY:-}" ]]; then
     error "TMT_API_KEY is not set. Check your .env file."
     exit 1
