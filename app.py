@@ -15,6 +15,13 @@ from flask import Flask, request, jsonify, send_file
 
 sys.path.insert(0, str(Path(__file__).parent))
 
+# Load environment from .env when available (optional dependency)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # 50 MB
 

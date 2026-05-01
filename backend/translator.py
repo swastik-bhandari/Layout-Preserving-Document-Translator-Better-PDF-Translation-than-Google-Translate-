@@ -11,6 +11,7 @@ Google Translate-grade reliability:
 import re
 import time
 import random
+import os
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -23,6 +24,16 @@ _session.mount("https://", HTTPAdapter(
 ))
 
 _SENT_SPLIT = re.compile(r'(?<=[.!?।])\s+')
+
+# Load API settings from environment
+API_KEY = os.environ.get("TMT_API_KEY")
+API_URL = os.environ.get("TMT_API_URL", "https://api.example.com/translate")
+
+if not API_KEY:
+    raise RuntimeError("TMT_API_KEY not set in environment")
+
+if not API_URL:
+    raise RuntimeError("TMT_API_URL not set in environment")
 
 
 def _jitter(base: float) -> float:
