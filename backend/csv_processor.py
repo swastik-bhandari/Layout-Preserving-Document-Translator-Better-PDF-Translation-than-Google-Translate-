@@ -34,17 +34,11 @@ def _skippable(cell: str) -> bool:
     t = cell.strip()
     if not t:
         return True
-    # Pure numeric (digits, commas, dots, currency symbols only)
-    if _NUM_RE.match(t):
-        return True
-    # Dates
-    if _DATE_RE.match(t):
-        return True
     # URLs
     if _URL_RE.match(t):
         return True
     # Only skip short all-caps if it's truly code-like (no vowels = acronym)
-    # e.g. "USD", "N/A", "ID" — but NOT "total", "male", "yes"
+    # e.g. "USD", "N/A", "ID" 
     if len(t) <= 4 and t.upper() == t and re.match(r'^[A-Z0-9_/\-]+$', t):
         return True
     return False
