@@ -277,33 +277,56 @@ def _block_style(spans, x0, y0, x1, y1, tol=4) -> dict:
 
 # ── pdfplumber layout extraction ────────────────────────────────────────────
 
-def _words_to_lines(words, y_tol=4.0):
+def _words_to_lines(words, y_tol=4.0, x_gap_split=45.0):
+    """
+    Cluster words into lines by y-proximity, then split each visual line on
+    large x-gaps (columns, tab-stops, spaced list items like '1) Foo   2) Bar').
+
+    x_gap_split=45pt: gap between consecutive words on the same y-level that
+    indicates a column boundary or tab-stop — they become separate lines.
+    This prevents '1) Football 2) Chess' (same y, big gap) being sent as one
+    translation unit and returned as '१) फुटबल २) चेस' on one line.
+    """
     if not words:
         return []
     sw = sorted(words, key=lambda w: (round(w['top'] / y_tol) * y_tol, w['x0']))
-    lines, cur, cy = [], [], None
+    # Group by y-proximity
+    raw_lines, cur, cy = [], [], None
     for w in sw:
         if cy is None or abs(w['top'] - cy) > y_tol:
             if cur:
-                lines.append(cur)
+                raw_lines.append(cur)
             cur, cy = [w], w['top']
         else:
             cur.append(w)
     if cur:
-        lines.append(cur)
+        raw_lines.append(cur)
+
+    # For each raw line, split further on large x-gaps
     result = []
-    for lw in lines:
+    for lw in raw_lines:
         lw = sorted(lw, key=lambda w: w['x0'])
-        text = ' '.join(w['text'] for w in lw).strip()
-        if text:
-            result.append({
-                'top':    min(w['top']                      for w in lw),
-                'bottom': max(w.get('bottom', w['top']+12) for w in lw),
-                'x0':     min(w['x0']                      for w in lw),
-                'x1':     max(w['x1']                      for w in lw),
-                'words':  lw,
-                'text':   text,
-            })
+        # Split into sub-groups on large horizontal gaps
+        groups, grp = [], [lw[0]]
+        for i in range(1, len(lw)):
+            gap = lw[i]['x0'] - lw[i-1]['x1']
+            if gap > x_gap_split:
+                groups.append(grp)
+                grp = []
+            grp.append(lw[i])
+        groups.append(grp)
+
+        for g in groups:
+            text = ' '.join(w['text'] for w in g).strip()
+            if text:
+                result.append({
+                    'top':    min(w['top']                      for w in g),
+                    'bottom': max(w.get('bottom', w['top']+12) for w in g),
+                    'x0':     min(w['x0']                      for w in g),
+                    'x1':     max(w['x1']                      for w in g),
+                    'words':  g,
+                    'text':   text,
+                })
     return result
 
 
@@ -386,12 +409,34 @@ def _make_block(lines, page_width):
     bold   = _is_bold_words(words)
     x0     = min(ln['x0'] for ln in lines)
     x1     = max(ln['x1'] for ln in lines)
-    cx     = (x0 + x1) / 2
-    pcx    = page_width / 2
 
-    if abs(cx - pcx) < 36 and x0 > 55:
+    # Alignment detection:
+    # Use x0 (left edge of block) as the primary signal, NOT cx.
+    # Using cx causes short translated text (e.g. right-column table cells)
+    # to drift toward page center and be wrongly labeled 'center'.
+    #
+    # Rules:
+    #   center → x0 is clearly past left margin AND the block spans near-symmetrically
+    #            around the page center. We check BOTH x0 and x1 relative to margins.
+    #   right  → x0 is in the right 45% of the page (not just right 55% to be safe)
+    #   left   → everything else (default, most common)
+    margin_l = 55          # typical left margin in points
+    margin_r = page_width - 55  # typical right margin
+
+    # True center: block is positioned symmetrically — both x0 and x1 are
+    # roughly equidistant from left and right margins
+    left_dist  = x0 - margin_l
+    right_dist = margin_r - x1
+    block_width = x1 - x0
+    page_fraction = block_width / page_width
+    is_center = (x0 > margin_l + 10 and
+             x1 < margin_r - 10 and
+             abs(left_dist - right_dist) < 30 and
+             page_fraction < 0.60)  # ← full-width paragraphs are NOT centered
+
+    if is_center:
         align = 'center'
-    elif x0 > page_width * 0.55:
+    elif x0 > page_width * 0.50:
         align = 'right'
     else:
         align = 'left'
