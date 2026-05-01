@@ -144,11 +144,9 @@ bash setup.sh
 # Start the application
 bash run.sh
 ```
-
 Open **http://localhost:5050** in your browser.
 
-Reminder: After running `bash setup.sh`, open the generated `.env` file and replace the placeholder `YOUR_API_KEY_HERE` with your actual TMT API key before running the app.
----
+> Reminder: After running `bash setup.sh`, open the generated `.env` file and replace the placeholder `YOUR_API_KEY_HERE` with your actual TMT API key before running the app.
 
 ## Option 2 — Docker (Best for Evaluation)
 
