@@ -56,7 +56,7 @@ LowResource Labs · Google TMT Hackathon 2026
 
 ## Side-by-Side Comparison
 
-The screenshots below compare translations of the same English source document into Nepali using Google Translate and this project.  
+The screenshots below present a side-by-side comparison of the same English source PDF translated into Nepali using Google Translate and this system.
 
 All corresponding test files — including PDF, DOCX, CSV, and TSV formats — are available in the `TestFiles/` directory.
 
