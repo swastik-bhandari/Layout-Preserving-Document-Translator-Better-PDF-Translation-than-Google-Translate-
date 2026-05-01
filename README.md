@@ -318,10 +318,6 @@ All `<w:t>` text nodes across runs are joined before sending to the API, so the 
 
 `utf-8-sig` is tried first because Excel exports always write a UTF-8 BOM. Delimiter is detected by `csv.Sniffer` with fallback to counting occurrences of `,`, `\t`, `|`, `;`.
 
-### Smart Skip Logic
-
-Cells are skipped (not sent to API) if they are: pure numbers, dates (`DD/MM/YYYY`), URLs (`https://...`), or short all-uppercase acronyms (`USD`, `N/A`, `ID`).
-
 ---
 
 ## Translation API Client
