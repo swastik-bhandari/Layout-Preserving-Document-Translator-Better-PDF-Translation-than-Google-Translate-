@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TMT Translator — LowResource Labs</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #f8f9fa;
+  --surface:   #ffffff;
+  --border:    #e2e8f0;
+  --accent:    #1a73e8;
+  --accent-dk: #1557b0;
+  --success:   #1e8e3e;
+  --error:     #d93025;
+  --warn:      #f29900;
+  --text:      #202124;
+  --muted:     #5f6368;
+  --light:     #f1f3f4;
+  --radius:    12px;
+  --radius-sm: 8px;
+  --shadow:    0 1px 3px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.1);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Google Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── Top bar ──────────────────────────────────── */
+.topbar {
+  width: 100%;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--accent);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: white;
+}
+
+.logo-text { font-size: 18px; font-weight: 600; color: var(--text); }
+.logo-sub  { font-size: 12px; color: var(--muted); margin-top: 1px; }
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chip {
+  padding: 6px 14px;
+  background: #e8f0fe;
+  color: var(--accent);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* ── Main ─────────────────────────────────────── */
+.main {
+  width: 100%;
+  max-width: 980px;
+  padding: 32px 20px 80px;
+}
+
+.hero {
+  margin-bottom: 28px;
+}
+
+.hero h1 {
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.hero p {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* ── Cards ────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+.card-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-label::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+
+/* ── Two-col layout ───────────────────────────── */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 700px) {
+  .layout { grid-template-columns: 1fr; }
+}
+.full { grid-column: 1 / -1; }
+
+/* ── Drop zone ────────────────────────────────── */
+.drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-sm);
+  padding: 40px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .18s;
+  position: relative;
+  background: var(--light);
+}
+.drop-zone:hover,
+.drop-zone.over {
+  border-color: var(--accent);
+  background: #e8f0fe;
+}
+.drop-zone input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+.dz-icon  { font-size: 36px; margin-bottom: 12px; }
+.dz-label { font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.dz-sub   { font-size: 12px; color: var(--muted); }
+
+/* ── File pill ────────────────────────────────── */
+.file-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--light);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-top: 14px;
+}
+.ext-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.ext-pdf  { background: #fce8e6; color: #c5221f; }
+.ext-docx { background: #e8f0fe; color: #1557b0; }
+.ext-csv, .ext-tsv { background: #e6f4ea; color: #137333; }
+.pill-name { flex: 1; font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pill-size { font-size: 12px; color: var(--muted); }
+.pill-rm   { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 20px; line-height: 1; padding: 0 2px; }
+.pill-rm:hover { color: var(--error); }
+
+/* ── Language row ─────────────────────────────── */
+.lang-row {
+  display: grid;
+  grid-template-columns: 1fr 44px 1fr;
+  gap: 10px;
+  align-items: end;
+  margin-top: 20px;
+}
+.lang-group label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+select {
+  width: 100%;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%235f6368' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  transition: border-color .15s;
+}
+select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(26,115,232,.2); }
+
+.swap-btn {
+  width: 44px;
+  height: 42px;
+  background: var(--light);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+  margin-bottom: 0;
+}
+.swap-btn:hover { color: var(--accent); border-color: var(--accent); background: #e8f0fe; }
+
+/* ── Translate button ─────────────────────────── */
+.translate-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 20px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background .15s, box-shadow .15s, transform .1s;
+  letter-spacing: 0.02em;
+  box-shadow: 0 1px 3px rgba(26,115,232,.4);
+}
+.translate-btn:hover:not(:disabled) {
+  background: var(--accent-dk);
+  box-shadow: 0 2px 8px rgba(26,115,232,.4);
+  transform: translateY(-1px);
+}
+.translate-btn:active:not(:disabled) { transform: translateY(0); }
+.translate-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Options card ─────────────────────────────── */
+.opts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.opt-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.opt-row label { font-size: 13px; color: var(--text); cursor: pointer; }
+.opt-row input[type="checkbox"] {
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+.delay-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+.delay-row label {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+input[type="range"] { flex: 1; accent-color: var(--accent); }
+.delay-val { font-size: 12px; color: var(--accent); font-weight: 600; min-width: 42px; text-align: right; }
+
+/* ── Format chips ─────────────────────────────── */
+.format-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.fmt-chip {
+  padding: 5px 12px;
+  background: var(--light);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+}
+.fmt-chip strong { color: var(--text); }
+
+/* ── Progress card ────────────────────────────── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.stat {
+  background: var(--light);
+  border-radius: var(--radius-sm);
+  padding: 14px 10px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+.stat-num {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.c-blue  { color: var(--accent); }
+.c-green { color: var(--success); }
+.c-red   { color: var(--error); }
+
+.progress-bar-bg {
+  background: var(--light);
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+  margin: 12px 0 6px;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width .4s ease;
+}
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dot-idle    { background: var(--muted); }
+.dot-running { background: var(--accent); animation: pulse 1.1s infinite; }
+.dot-done    { background: var(--success); }
+.dot-error   { background: var(--error); }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.35; } }
+.status-label { font-size: 14px; font-weight: 500; }
+
+/* ── Log ──────────────────────────────────────── */
+.log-box {
+  background: #f8f9fa;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 12px;
+  font-family: 'Roboto Mono', 'Consolas', 'Courier New', monospace;
+}
+.log-box::-webkit-scrollbar { width: 4px; }
+.log-box::-webkit-scrollbar-track { background: transparent; }
+.log-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.log-line {
+  display: flex;
+  gap: 10px;
+  padding: 2.5px 0;
+  border-bottom: 1px solid rgba(0,0,0,.04);
+  align-items: flex-start;
+}
+.log-line:last-child { border: none; }
+.log-ts   { color: var(--muted); flex-shrink: 0; font-size: 10px; margin-top: 1px; min-width: 64px; }
+.log-ok   { color: var(--success); }
+.log-err  { color: var(--error); }
+.log-info { color: var(--muted); }
+.log-warn { color: var(--warn); }
+
+/* ── Result card ──────────────────────────────── */
+.result-card {
+  background: #e6f4ea;
+  border: 1px solid #ceead6;
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-top: 20px;
+}
+.result-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--success);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.result-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 22px;
+  background: var(--success);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .15s;
+}
+.btn-primary:hover { background: #137333; }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 22px;
+  background: white;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Toast ────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  padding: 12px 20px;
+  background: var(--text);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  display: none;
+  z-index: 999;
+  box-shadow: var(--shadow-md);
+  max-width: 320px;
+}
+.toast.show { display: block; animation: slideup .2s ease; }
+.toast.ok   { background: var(--success); }
+.toast.err  { background: var(--error); }
+@keyframes slideup {
+  from { transform: translateY(10px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">🌐</div>
+    <div>
+      <div class="logo-text">TMT File Translator</div>
+      <div class="logo-sub">LowResource Labs · Google TMT Hackathon 2026</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="chip">EN ↔ NE ↔ TMG</div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="hero">
+    <h1>Document Translation</h1>
+    <p>Upload PDF, DOCX, CSV or TSV — format preserved, powered by TMT API</p>
+  </div>
+
+  <div class="layout">
+
+    <!-- ── Upload card ─────────────────────────── -->
+    <div class="card">
+      <div class="card-label">Document</div>
+
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="fileInput" accept=".pdf,.docx,.csv,.tsv">
+        <div class="dz-icon">📂</div>
+        <div class="dz-label">Drop file here or <span style="color:var(--accent)">browse</span></div>
+        <div class="dz-sub">PDF · DOCX · CSV · TSV · up to 50 MB</div>
+      </div>
+
+      <div id="filePill" class="file-pill hidden">
+        <span class="ext-badge" id="extBadge"></span>
+        <span class="pill-name" id="fileName"></span>
+        <span class="pill-size" id="fileSize"></span>
+        <button class="pill-rm" id="removeFile" title="Remove">×</button>
+      </div>
+
+      <div class="lang-row" style="margin-top:20px;">
+        <div class="lang-group">
+          <label>From</label>
+          <select id="srcLang">
+            <option value="en">🇬🇧 English</option>
+            <option value="ne">🇳🇵 Nepali</option>
+            <option value="tmg">🏔 Tamang</option>
+          </select>
+        </div>
+        <button class="swap-btn" id="swapLang" title="Swap languages">⇄</button>
+        <div class="lang-group">
+          <label>To</label>
+          <select id="tgtLang">
+            <option value="ne" selected>🇳🇵 Nepali</option>
+            <option value="en">🇬🇧 English</option>
+            <option value="tmg">🏔 Tamang</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="translate-btn" id="translateBtn" disabled>
+        Translate Document →
+      </button>
+    </div>
+
+    <!-- ── Options card ────────────────────────── -->
+    <div class="card">
+      <div class="card-label">Options</div>
+
+      <div class="opts-grid">
+        <div class="opt-row">
+          <input type="checkbox" id="optHeader" checked>
+          <label for="optHeader">CSV has header row</label>
+        </div>
+        <div class="opt-row">
+          <input type="checkbox" id="optSkipNum" checked>
+          <label for="optSkipNum">Skip numeric cells</label>
+        </div>
+        <div class="opt-row">
+          <input type="checkbox" id="optTranslateHeader" checked>
+          <label for="optTranslateHeader">Translate headers</label>
+        </div>
+        <div class="opt-row">
+          <input type="checkbox" id="optPreserve" checked>
+          <label for="optPreserve">Preserve formatting</label>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div style="margin-bottom:4px;">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">API Request Delay</div>
+        <div class="delay-row">
+          <label>Fast</label>
+          <input type="range" id="delaySlider" min="50" max="600" step="50" value="120">
+          <label>Safe</label>
+          <span class="delay-val" id="delayVal">120 ms</span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="card-label" style="margin-bottom:10px;">Supported Formats</div>
+      <div class="format-chips">
+        <div class="fmt-chip">📄 <strong>PDF</strong> layout + tables</div>
+        <div class="fmt-chip">📝 <strong>DOCX</strong> styles + fonts</div>
+        <div class="fmt-chip">📊 <strong>CSV</strong> all cells</div>
+        <div class="fmt-chip">📋 <strong>TSV</strong> tab-delimited</div>
+      </div>
+    </div>
+
+    <!-- ── Progress card (full width) ─────────── -->
+    <div class="card full hidden" id="progressCard">
+      <div class="status-row">
+        <div class="status-dot dot-idle" id="statusDot"></div>
+        <div class="status-label" id="statusLabel">Idle</div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat">
+          <div class="stat-num c-blue"  id="statTotal">0</div>
+          <div class="stat-lbl">Total</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num c-green" id="statDone">0</div>
+          <div class="stat-lbl">Done</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num c-red"   id="statErr">0</div>
+          <div class="stat-lbl">Errors</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num c-blue"  id="statPct">0%</div>
+          <div class="stat-lbl">Progress</div>
+        </div>
+      </div>
+
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+      </div>
+      <div class="progress-info">
+        <span id="progressText">Waiting…</span>
+        <span id="progressEta"></span>
+      </div>
+
+      <div class="log-box" id="logBox"></div>
+
+      <!-- Result inline -->
+      <div class="result-card hidden" id="resultCard">
+        <div class="result-title">✅ Translation Complete</div>
+        <div class="result-btns">
+          <a id="downloadLink" class="btn-primary" href="#" download>
+            ⬇ Download Translated File
+          </a>
+          <button class="btn-ghost" id="newTranslation">
+            + Translate Another
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /layout -->
+</div><!-- /main -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ────────────────────────────────────────────
+let file = null, jobId = null, pollTimer = null, startTime = null, lastLogIdx = 0;
+
+// ── DOM ──────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const dropZone      = $('dropZone');
+const fileInput     = $('fileInput');
+const filePill      = $('filePill');
+const extBadge      = $('extBadge');
+const fileName      = $('fileName');
+const fileSize      = $('fileSize');
+const removeFile    = $('removeFile');
+const srcLang       = $('srcLang');
+const tgtLang       = $('tgtLang');
+const swapLang      = $('swapLang');
+const translateBtn  = $('translateBtn');
+const progressCard  = $('progressCard');
+const resultCard    = $('resultCard');
+const statusDot     = $('statusDot');
+const statusLabel   = $('statusLabel');
+const progressFill  = $('progressFill');
+const progressText  = $('progressText');
+const progressEta   = $('progressEta');
+const logBox        = $('logBox');
+const downloadLink  = $('downloadLink');
+const newTranslation= $('newTranslation');
+const delaySlider   = $('delaySlider');
+const delayVal      = $('delayVal');
+
+// ── Helpers ──────────────────────────────────────────
+function fmt(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  return (b/1048576).toFixed(2) + ' MB';
+}
+function ext(n) { return (n.split('.').pop() || '').toLowerCase(); }
+function toast(msg, type = 'ok') {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = `toast show ${type}`;
+  setTimeout(() => t.className = 'toast', 3200);
+}
+function log(msg, type = 'info') {
+  const d = document.createElement('div');
+  d.className = `log-line log-${type}`;
+  const now = new Date();
+  d.innerHTML = `<span class="log-ts">${now.toTimeString().slice(0,8)}</span><span>${msg}</span>`;
+  logBox.appendChild(d);
+  logBox.scrollTop = logBox.scrollHeight;
+}
+function setDot(cls) {
+  statusDot.className = 'status-dot ' + cls;
+}
+
+// ── File handling ────────────────────────────────────
+function setFile(f) {
+  if (f.size > 50 * 1024 * 1024) { toast('File exceeds 50 MB limit', 'err'); return; }
+  const e = ext(f.name);
+  if (!['pdf','docx','csv','tsv'].includes(e)) { toast('Unsupported: .' + e, 'err'); return; }
+  file = f;
+  extBadge.textContent = e.toUpperCase();
+  extBadge.className = 'ext-badge ext-' + e;
+  fileName.textContent = f.name;
+  fileSize.textContent = fmt(f.size);
+  filePill.classList.remove('hidden');
+  dropZone.style.display = 'none';
+  translateBtn.disabled = false;
+}
+function clearFile() {
+  file = null;
+  filePill.classList.add('hidden');
+  dropZone.style.display = '';
+  translateBtn.disabled = true;
+  fileInput.value = '';
+}
+
+dropZone.addEventListener('click', e => { if (e.target !== fileInput) fileInput.click(); });
+fileInput.addEventListener('change', e => { if (e.target.files[0]) setFile(e.target.files[0]); });
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('over');
+  if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+});
+removeFile.addEventListener('click', clearFile);
+
+// ── Language ─────────────────────────────────────────
+swapLang.addEventListener('click', () => {
+  [srcLang.value, tgtLang.value] = [tgtLang.value, srcLang.value];
+});
+srcLang.addEventListener('change', () => {
+  if (srcLang.value === tgtLang.value)
+    tgtLang.value = srcLang.value === 'en' ? 'ne' : 'en';
+});
+tgtLang.addEventListener('change', () => {
+  if (srcLang.value === tgtLang.value)
+    srcLang.value = tgtLang.value === 'en' ? 'ne' : 'en';
+});
+
+// ── Delay slider ─────────────────────────────────────
+delaySlider.addEventListener('input', () => {
+  delayVal.textContent = delaySlider.value + ' ms';
+});
+
+// ── Translate ─────────────────────────────────────────
+translateBtn.addEventListener('click', async () => {
+  if (!file) return;
+
+  // Reset
+  logBox.innerHTML = '';
+  lastLogIdx = 0;
+  progressCard.classList.remove('hidden');
+  resultCard.classList.add('hidden');
+  translateBtn.disabled = true;
+  setDot('dot-running');
+  statusLabel.textContent = 'Uploading…';
+  startTime = Date.now();
+  progressFill.style.width = '0%';
+  ['statTotal','statDone','statErr'].forEach(id => $(id).textContent = '0');
+  $('statPct').textContent = '0%';
+  progressText.textContent = 'Uploading…';
+  progressEta.textContent = '';
+
+  const fd = new FormData();
+  fd.append('file',             file);
+  fd.append('src_lang',         srcLang.value);
+  fd.append('tgt_lang',         tgtLang.value);
+  fd.append('delay',            delaySlider.value);
+  fd.append('has_header',       $('optHeader').checked ? '1' : '0');
+  fd.append('translate_header', $('optTranslateHeader').checked ? '1' : '0');
+  fd.append('skip_numeric',     $('optSkipNum').checked ? '1' : '0');
+
+  try {
+    const res  = await fetch('/translate', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!res.ok || data.error) { showError(data.error || 'Upload failed'); return; }
+    jobId = data.job_id;
+    log(`Job ${jobId} queued`, 'info');
+    statusLabel.textContent = 'Processing…';
+    startPolling();
+  } catch(e) {
+    showError('Network error: ' + e.message);
+  }
+});
+
+function showError(msg) {
+  setDot('dot-error');
+  statusLabel.textContent = 'Error';
+  log(msg, 'err');
+  translateBtn.disabled = false;
+  toast(msg, 'err');
+}
+
+// ── Polling ───────────────────────────────────────────
+function startPolling() {
+  pollTimer = setInterval(poll, 900);
+}
+
+async function poll() {
+  if (!jobId) return;
+  try {
+    const res  = await fetch(`/status/${jobId}`);
+    const data = await res.json();
+    if (!res.ok) return;
+
+    const prog  = data.progress || 0;
+    const total = data.total    || 1;
+    const pct   = Math.min(100, Math.round((prog / total) * 100));
+    const errN  = (data.log || []).filter(l => l.type === 'err').length;
+
+    $('statTotal').textContent = total;
+    $('statDone').textContent  = prog;
+    $('statErr').textContent   = errN;
+    $('statPct').textContent   = pct + '%';
+    progressFill.style.width   = pct + '%';
+    progressText.textContent   = data.log?.slice(-1)[0]?.msg || 'Processing…';
+
+    if (prog > 0 && startTime) {
+      const elapsed  = (Date.now() - startTime) / 1000;
+      const rate     = prog / elapsed;
+      const rem      = (total - prog) / Math.max(rate, 0.01);
+      progressEta.textContent = rem > 4 ? `~${Math.ceil(rem)}s left` : '';
+    }
+
+    // Append new logs
+    const logs = data.log || [];
+    for (let i = lastLogIdx; i < logs.length; i++) {
+      log(logs[i].msg, logs[i].type || 'info');
+    }
+    lastLogIdx = logs.length;
+
+    if (data.status === 'done') {
+      clearInterval(pollTimer);
+      onDone(data);
+    } else if (data.status === 'error') {
+      clearInterval(pollTimer);
+      showError(data.error || 'Translation failed');
+    }
+  } catch(e) { /* network blip, keep polling */ }
+}
+
+function onDone(data) {
+  setDot('dot-done');
+  statusLabel.textContent    = 'Complete';
+  progressFill.style.width   = '100%';
+  $('statPct').textContent   = '100%';
+  progressEta.textContent    = '';
+  log('✅ Translation complete!', 'ok');
+  downloadLink.href     = `/download/${jobId}`;
+  downloadLink.download = data.output_name || 'translated';
+  resultCard.classList.remove('hidden');
+  translateBtn.disabled = false;
+  toast('Translation complete! 🎉', 'ok');
+}
+
+// ── New translation ───────────────────────────────────
+newTranslation.addEventListener('click', () => {
+  clearFile();
+  resultCard.classList.add('hidden');
+  progressCard.classList.add('hidden');
+  jobId = null;
+  if (pollTimer) clearInterval(pollTimer);
+  logBox.innerHTML = '';
+  setDot('dot-idle');
+  statusLabel.textContent = 'Idle';
+  progressFill.style.width = '0%';
+  ['statTotal','statDone','statErr'].forEach(id => $(id).textContent = '0');
+  $('statPct').textContent = '0%';
+  progressText.textContent = 'Waiting…';
+  progressEta.textContent = '';
+});
+</script>
+</body>
+</html>
