@@ -56,6 +56,9 @@ if [[ ! -f ".env" ]]; then
     exit 1
 fi
 
+# Fix Windows CRLF line endings in .env (silent, in-place)
+sed -i 's/\r//' .env
+
 if grep -q "YOUR_API_KEY_HERE" .env 2>/dev/null; then
     error "TMT_API_KEY is still a placeholder in .env"
     error "Edit .env and set your real API key, then re-run."
@@ -95,7 +98,7 @@ fi
 # shellcheck disable=SC1091
 source venv/bin/activate
 
-# Verify API key is loaded
+# Load .env into environment
 while IFS= read -r line; do
     [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
     [[ "$line" != *"="* ]] && continue
@@ -111,6 +114,7 @@ while IFS= read -r line; do
 
     export "$key=$value"
 done < .env
+
 if [[ -z "${TMT_API_KEY:-}" ]]; then
     error "TMT_API_KEY is not set. Check your .env file."
     exit 1
