@@ -1,6 +1,9 @@
 # Layout-Preserving Document Translator
 ### Translate PDFs without breaking formatting
 
+🎬 **Demo Video**  
+👉 [Watch the 3-minute demo](https://drive.google.com/file/d/1wLUeX_AuTKtzCwHM2NvImIE1JNNRMc4s/view?usp=sharing)
+
 > A multilingual document translator for PDF, DOCX, and CSV/TSV that preserves layout, tables, and styling — something Google Translate fails to do for Nepali documents.
 
 > **Baseline:** Google Translate is used as the reference system for PDF and DOCX translation quality. CSV and TSV formats are not supported by Google Translate.
